@@ -1,0 +1,14 @@
+{
+  "name": "uptime-monitor",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
+
+An application that allows user to enter URLs they want monitored, and receive alerts when those resources  go down or come back up
