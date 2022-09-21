@@ -28,8 +28,28 @@ const server = http.createServer(function (req, res) {
     });
     req.on('end', function () {
         buffer += decoder.end()
-        res.end('Hello World\n');
-        console.log('Request received with this payload')
+        const chosenHandler = typeof router[trimmedPath] !== 'undefined' ? router[trimmedPath] : handlers.notFound;
+
+        const data = {
+            trimmedPath,
+            queryStringObject,
+            method,
+            headers,
+            'payload': buffer
+        }
+
+
+        chosenHandler(data, function (statusCode, payload) {
+            statusCode = typeof(statusCode) === 'number' ? statusCode : 200
+            payload = typeof(payload) === 'object' ? payload : {};
+            const payloadString = JSON.stringify(payload);
+
+            res.setHeader('Content-Type', 'application/json')
+            res.writeHead(statusCode);
+            res.end(payloadString);
+
+            console.log('This is the response', buffer);
+        })
     })
 
 });
@@ -37,3 +57,17 @@ const server = http.createServer(function (req, res) {
 server.listen(3000, function () {
     console.log('Server is listening on port 3000');
 })
+
+const handlers = {};
+
+handlers.sample = function (data, callback) {
+    callback(406, {'name': 'sample handler'})
+}
+
+handlers.notFound = function (data, callback) {
+    callback(404)
+}
+
+const router = {
+    'sample': handlers.sample
+}
