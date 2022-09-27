@@ -85,11 +85,60 @@ handlers._users.get = function (data, callback) {
             }
         })
     }else {
-        callback(200, {'error': 'missing required field'})
+        callback(400, {'error': 'missing required field'})
     }
 }
 
 handlers._users.put = function (data, callback) {
+
+    const contact = typeof data.queryStringObject.contact === 'string' && data.queryStringObject.contact.trim().length === 10
+        ? data.queryStringObject.contact.trim()
+        : false;
+
+    const firstName = typeof data.payload.firstName === 'string' && data.payload.firstName.trim().length
+        ? data.payload.firstName.trim()
+        : false;
+    const lastName = typeof data.payload.lastName === 'string' && data.payload.lastName.trim().length
+        ? data.payload.lastName.trim()
+        : false;
+    const password = typeof data.payload.password === 'string' && data.payload.password.length >= 8
+        ? data.payload.password
+        : false;
+
+
+    if (contact) {
+
+        if (firstName || lastName || password) {
+            _data.read('users', contact, function (err, data) {
+                if (!err && data) {
+                    if (firstName) {
+                        data.firstName = firstName;
+                    }
+                    if (lastName) {
+                        data.lastName = lastName;
+                    }
+                    if (password) {
+                        data.password = password;
+                    }
+
+                    _data.update('users', contact, data, function (err) {
+                        if (err) {
+                            callback(500, {'error': err})
+                        }else {
+                            callback(200, {'message': 'user update successful'})
+                        }
+                    })
+                }else {
+                    callback(400, {'error': 'specified user does not exist'})
+                }
+            })
+        }else {
+            callback(400, {'error': 'missing fields to update'})
+        }
+
+    }else {
+        callback(400, {'error': 'missing required field'})
+    }
 
 }
 
