@@ -71,7 +71,22 @@ handlers._users.post = function (data, callback) {
 }
 
 handlers._users.get = function (data, callback) {
+    const contact = typeof data.queryStringObject.contact === 'string' && data.queryStringObject.contact.trim().length === 10
+        ? data.queryStringObject.contact.trim()
+        : false;
 
+    if (contact){
+        _data.read('users', contact, function (error, data) {
+            if (!error && data) {
+               delete data.hashedPassword;
+               callback(200, data)
+            }else {
+               callback(404);
+            }
+        })
+    }else {
+        callback(200, {'error': 'missing required field'})
+    }
 }
 
 handlers._users.put = function (data, callback) {
