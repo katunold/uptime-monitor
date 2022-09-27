@@ -144,6 +144,32 @@ handlers._users.put = function (data, callback) {
 
 handlers._users.delete = function (data, callback) {
 
+    const contact = typeof data.queryStringObject.contact === 'string' && data.queryStringObject.contact.trim().length === 10
+        ? data.queryStringObject.contact.trim()
+        : false;
+
+    if (contact) {
+
+        _data.read('users', contact, function (err, data) {
+            if (!err && data) {
+
+                _data.delete('users', contact, function (err) {
+                    if (err) {
+                        callback(500, {'error': err})
+                    }else {
+                        callback(200, {'message': 'user account deleted'})
+                    }
+                })
+
+            }else {
+                callback(404, {'error': 'could not find specified user'})
+            }
+
+        })
+
+    }else {
+        callback(400, {'error': 'missing required field'})
+    }
 }
 
 handlers.ping = function (data, callback) {
